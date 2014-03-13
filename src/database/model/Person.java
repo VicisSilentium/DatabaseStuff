@@ -23,6 +23,11 @@ public class Person
 		age = -500;
 	}
 
+	public Person(String name, String deathDate)
+	{
+		this.name = name;
+		this.deathDate = deathDate;
+	}
 	// ----------- Getters ------------ \\
 	public String getName()
 	{
@@ -34,7 +39,7 @@ public class Person
 		return married;
 	}
 
-	public boolean isChildren()
+	public boolean isHasChildren()
 	{
 		return children;
 	}
@@ -85,6 +90,7 @@ public class Person
 		this.age = age;
 	}
 
+	// ----------- Methods ------------ \\
 	public String toString()
 	{
 		String personInfo = "";
