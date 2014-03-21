@@ -24,8 +24,8 @@ public class DatabaseController
 	
 	// --------- Constructor ---------- \\
 	/**
-	 * Constructor for the DatabaseController class. Sets up a connection with
-	 * the database.
+	 * Constructor for the DatabaseController class.
+	 * Sets up a connection with the database.
 	 */
 	public DatabaseController()
 	{
@@ -58,6 +58,7 @@ public class DatabaseController
 	}
 	
 	// ----------- Methods ------------ \\
+
 	/**
 	 * A method to show what the current SQL error is.
 	 * 
@@ -66,17 +67,14 @@ public class DatabaseController
 	 */
 	public void displaySQLErrors(SQLException currentException)
 	{
-		JOptionPane.showMessageDialog(null, "The SQL error is: "
-				+ currentException.getMessage());
-		JOptionPane.showMessageDialog(null, "The MySQL server state is: "
-				+ currentException.getSQLState());
-		JOptionPane.showMessageDialog(null, "TheMySQL error code is: "
-				+ currentException.getErrorCode());
+		JOptionPane.showMessageDialog(null, "The SQL error is: " + currentException.getMessage());
+		JOptionPane.showMessageDialog(null, "The MySQL server state is: " + currentException.getSQLState());
+		JOptionPane.showMessageDialog(null, "TheMySQL error code is: " + currentException.getErrorCode());
 	}
 	
 	/**
-	 * A method to create a connection with the database. Uses a try/catch to
-	 * prevent crashing.
+	 * A method to create a connection with the database.
+	 * Uses a try/catch to prevent crashing.
 	 */
 	public void setupConnection()
 	{
@@ -91,8 +89,8 @@ public class DatabaseController
 	}
 	
 	/**
-	 * A method to close the connection to the database to prevent data
-	 * corruption. Uses a Try/catch to prevent crashing.
+	 * A method to close the connection to the database to prevent data corruption.
+	 *  Uses a Try/catch to prevent crashing.
 	 */
 	public void closeConnection()
 	{
@@ -107,8 +105,7 @@ public class DatabaseController
 	}
 	
 	/**
-	 * A method to clear the connection to the database to prevent data
-	 * corruption.
+	 * A method to clear the connection to the database to prevent data corruption.
 	 * 
 	 */
 	public void clearConnection()
@@ -119,19 +116,17 @@ public class DatabaseController
 	}
 	
 	/*
-	 * A method to create a database labeled 'graveyard'. Uses a try/catch to
-	 * prevent crashing.
+	 * A method to create a database labeled 'graveyard'.
+	 * Uses a try/catch to prevent crashing.
 	 */
 	public void createDatabase()
 	{
 		clearConnection();
 		try
 		{
-			Statement createDatabaseStatement = databaseConnection
-					.createStatement();
+			Statement createDatabaseStatement = databaseConnection.createStatement();
 			
-			int result = createDatabaseStatement
-					.executeUpdate("CREATE DATABASE graveyard;");
+			int result = createDatabaseStatement.executeUpdate("CREATE DATABASE graveyard;");
 		}
 		catch (SQLException currentSQLError)
 		{
@@ -158,12 +153,10 @@ public class DatabaseController
 		
 		try
 		{
-			Statement createTableStatement = databaseConnection
-					.createStatement();
-			String mySQLStatement = "CREATE TABLE	'" + database + "'.'"
-					+ tableName
-					+ "' ('test_id' INT NOT NULL AUTO_INCREMENT PRIMARY KEY,"
-					+ "'test_name' VARCHAR( 50) NOT NULL) " + "ENGINE = INNOB";
+			Statement createTableStatement = databaseConnection.createStatement();
+			String mySQLStatement = "CREATE TABLE	'" + database + "'.'" + tableName
+					+ "' ('test_id' INT NOT NULL AUTO_INCREMENT PRIMARY KEY," + "'test_name' VARCHAR( 50) NOT NULL) "
+					+ "ENGINE = INNOB";
 			
 			int result = createTableStatement.executeUpdate(mySQLStatement);
 			createTableStatement.close();
@@ -176,6 +169,47 @@ public class DatabaseController
 	}
 	
 	/**
+	 * Creates a person table on the supplied database. Only creates the table if it does not exist.
+	 * Defines table structure to have an ID, name, birth, death, children, marital status, and age.
+	 * If there is a problem it will
+	 * call the displaySQLErrors method.
+	 * 
+	 * @param database
+	 *            The database to build the table on.
+	 */
+	public void createPeopleTable(String database)
+	{
+		closeConnection();
+		int queryIndex = connectionString.indexOf("?");
+		String connectionStart = connectionString.substring(0, queryIndex);
+		String connectionEnd = connectionString.substring(queryIndex);
+		connectionString = connectionStart + database + connectionEnd;
+		
+		setupConnection();
+		try
+		{
+			Statement createTableStatement = databaseConnection.createStatement();
+			String createMyPersonTabe = "CREATE TABLE IF NOT EXISTS '" + database +"`.`people`" 
+					+ "("
+						+ "`person_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,"
+						+ "`person_name` VARCHAR(50) NOT NULL,"
+						+ "`person_birth_date` VARCHAR(30)," 
+						+ "`person_death_date` VARCHAR(30),"
+						+ "`person_is_married` BOOL," 
+						+ "`person_has_children` BOOL," 
+						+ "`person_age` INT"
+					+ ") ENGINE = INNODB;";
+	
+			int result = createTableStatement.executeUpdate(createMyPersonTabe);
+			createTableStatement.close();
+		}
+		catch (SQLException currentSQLError)
+		{
+			displaySQLErrors(currentSQLError);
+		}
+	}
+	
+	/**
 	 * A method to delete the database labeled 'graveyard'.should NOT be called.
 	 * Uses a try/catch to prevent crashing.
 	 */
@@ -184,11 +218,9 @@ public class DatabaseController
 		clearConnection();
 		try
 		{
-			Statement deleteDatabaseStatement = (databaseConnection)
-					.createStatement();
+			Statement deleteDatabaseStatement = (databaseConnection).createStatement();
 			
-			int result = deleteDatabaseStatement
-					.executeUpdate("DROP DATABASE graveyard;");
+			int result = deleteDatabaseStatement.executeUpdate("DROP DATABASE graveyard;");
 		}
 		catch (SQLException currentSQLError)
 		{
@@ -205,10 +237,25 @@ public class DatabaseController
 	{
 		try
 		{
-			Statement insertPersonStatement = databaseConnection
-					.createStatement();
-			
-			String insertString = "INSERT INTO 'graveyard'.'people' ( 'person_name','death_date','birth_date','is_married','has_children','age')"
+			Statement insertPersonStatement = databaseConnection.createStatement();
+			int databaseIsMarried, databaseHasChildren;
+			if (currentPerson.isMarried())
+			{
+				databaseIsMarried = 1;
+			}
+			else
+			{
+				databaseIsMarried = 0;
+			}
+			if (currentPerson.isHasChildren())
+			{
+				databaseHasChildren = 1;
+			}
+			else
+			{
+				databaseHasChildren = 0;
+			}
+			String insertString = "INSERT INTO `graveyard`.`people` ( `person_name`,`death_date`,`birth_date`,`is_married`,`has_children`,`age`)"
 					+ "VALUES "
 					+ "('"
 					+ currentPerson.getName()
@@ -217,15 +264,38 @@ public class DatabaseController
 					+ "', '"
 					+ currentPerson.getBirthDate()
 					+ "', '"
-					+ currentPerson.isMarried()
+					+ databaseIsMarried
 					+ "', '"
-					+ currentPerson.isHasChildren()
+					+ databaseHasChildren
 					+ "', '"
 					+ currentPerson.getAge() + ");";
 			
 			int result = insertPersonStatement.executeUpdate(insertString);
-			JOptionPane.showMessageDialog(null, "successfully inserted "
-					+ result + " rows.");
+			JOptionPane.showMessageDialog(null, "successfully inserted " + result + " rows.");
+		}
+		catch (SQLException currentSQLError)
+		{
+			displaySQLErrors(currentSQLError);
+		}
+	}
+	
+	/**
+	 * Updated the people table to reflect a new name based on the supplied name. Pops a window with the number of changes reflected in the SQL statement.
+	 * @param oldName The old name to be changed.
+	 * @param newName The new name to be inserted.
+	 */
+	public void updatePersonInTable(String oldName, String newName)
+	{
+		try
+		{
+			Statement updateStatement = databaseConnection.createStatement();
+			String updateString = "UPDATE `graveyard`.`people`"
+					+ "SET `person_name` = '" + newName + "'"
+					+"WHERE `person_name = '" + oldName + "' ;";
+			
+			int result = updateStatement.executeUpdate(updateString);
+			JOptionPane.showMessageDialog(baseController.getMyAppFrame(), "successfully updated" + result + " row(s)");
+			updateStatement.close();
 		}
 		catch (SQLException currentSQLError)
 		{

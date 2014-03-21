@@ -1,6 +1,6 @@
 package database.model;
 
-import java.util.ArrayList;
+
 
 public class Person
 {
