@@ -23,7 +23,13 @@ public class AppController
 		myGravePeople = new ArrayList<Person>();
 	}
 
-	// ----------- Getters ------------ \\
+
+	// ----------- Getters ------------ \\	
+	public DatabaseFrame getMyAppFrame()
+	{
+		return myAppFrame;
+	}
+
 	public ArrayList<GraveMarker> getMyGraveMarkers()
 	{
 		return myGraveMarkers;
@@ -33,23 +39,13 @@ public class AppController
 	{
 		return myGravePeople;
 	}
-
-	// ----------- Setters ------------ \\
-	public void setMyGraveMarkers(ArrayList<GraveMarker> myGraveMarkers)
-	{
-		this.myGraveMarkers = myGraveMarkers;
-	}
-
-	public void setMyGravePeople(ArrayList<Person> myGravePeople)
-	{
-		this.myGravePeople = myGravePeople;
-	}
-
-	// ----------- Methods ------------ \\
+	
 	public DatabaseController getMyDataController()
 	{
 		return myDataController;
 	}
+	
+	// ----------- Methods ------------ \\
 
 	public void start()
 	{

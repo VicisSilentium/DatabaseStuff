@@ -19,18 +19,19 @@ import database.model.Person;
 public class DatabaseController
 {
 	// ------ Declaration Section ------ \\
+	private AppController baseController;
 	private String connectionString;
 	private Connection databaseConnection;
 	
 	// --------- Constructor ---------- \\
 	/**
-	 * Constructor for the DatabaseController class.
-	 * Sets up a connection with the database.
+	 * Constructor for the DatabaseController class. Sets up a connection with
+	 * the database.
 	 */
 	public DatabaseController()
 	{
 		connectionString = "jdbc:mysql://localhost/?user=root";
-		
+		checkDriver();
 		setupConnection();
 	}
 	
@@ -58,7 +59,46 @@ public class DatabaseController
 	}
 	
 	// ----------- Methods ------------ \\
-
+	
+	private void checkDriver()
+	{
+		try
+		{
+			Class.forName("com.mysql.jdbc.Driver");
+		}
+		catch(Exception currentExeption)
+		{
+			System.err.println("Unable to load driver.");
+			System.exit(1);
+		}
+	}
+	
+	
+	/**
+	 * Builds a Java connectionString for a MySQL database with the supplied
+	 * fields for serverPath, database, userName, and password to access the
+	 * database.
+	 * 
+	 * @param serverPath
+	 *            The path to the server. This can be an IP address or a URL
+	 *            string.
+	 * @param database
+	 *            The name of the database your are connecting to. Remember that
+	 *            it is case sensitive.
+	 * @param userName
+	 *            The username for the database access. If that user dot not
+	 *            have permission the connection will fail.
+	 * @param password
+	 *            The password in the cleartext for the connection. If it does
+	 *            not hash to match the password of the user, the connection
+	 *            will fail.
+	 */
+	public void buildConnectionString(String serverPath, String database, String userName, String password)
+	{
+		connectionString = "jdbc:mysql://" + serverPath + "/" + database + "?user=" + userName + "&password="
+				+ password;
+	}
+	
 	/**
 	 * A method to show what the current SQL error is.
 	 * 
@@ -73,8 +113,8 @@ public class DatabaseController
 	}
 	
 	/**
-	 * A method to create a connection with the database.
-	 * Uses a try/catch to prevent crashing.
+	 * A method to create a connection with the database. Uses a try/catch to
+	 * prevent crashing.
 	 */
 	public void setupConnection()
 	{
@@ -89,8 +129,8 @@ public class DatabaseController
 	}
 	
 	/**
-	 * A method to close the connection to the database to prevent data corruption.
-	 *  Uses a Try/catch to prevent crashing.
+	 * A method to close the connection to the database to prevent data
+	 * corruption. Uses a Try/catch to prevent crashing.
 	 */
 	public void closeConnection()
 	{
@@ -105,28 +145,30 @@ public class DatabaseController
 	}
 	
 	/**
-	 * A method to clear the connection to the database to prevent data corruption.
+	 * A method to clear the connection to the database to prevent data
+	 * corruption.
 	 * 
 	 */
 	public void clearConnection()
 	{
 		closeConnection();
-		connectionString = "jdbc:mysql://localhost/?user=root";
 		setupConnection();
 	}
 	
 	/*
-	 * A method to create a database labeled 'graveyard'.
-	 * Uses a try/catch to prevent crashing.
+	 * A method to create a specified database. Uses a try/catch to prevent
+	 * crashing.
+	 * 
+	 * @param databaseName The name for the database to connect to.
 	 */
-	public void createDatabase()
+	public void createDatabase(String databaseName)
 	{
 		clearConnection();
 		try
 		{
 			Statement createDatabaseStatement = databaseConnection.createStatement();
 			
-			int result = createDatabaseStatement.executeUpdate("CREATE DATABASE graveyard;");
+			int result = createDatabaseStatement.executeUpdate("CREATE DATABASE " + databaseName + ";");
 		}
 		catch (SQLException currentSQLError)
 		{
@@ -169,9 +211,9 @@ public class DatabaseController
 	}
 	
 	/**
-	 * Creates a person table on the supplied database. Only creates the table if it does not exist.
-	 * Defines table structure to have an ID, name, birth, death, children, marital status, and age.
-	 * If there is a problem it will
+	 * Creates a person table on the supplied database. Only creates the table
+	 * if it does not exist. Defines table structure to have an ID, name, birth,
+	 * death, children, marital status, and age. If there is a problem it will
 	 * call the displaySQLErrors method.
 	 * 
 	 * @param database
@@ -189,17 +231,17 @@ public class DatabaseController
 		try
 		{
 			Statement createTableStatement = databaseConnection.createStatement();
-			String createMyPersonTabe = "CREATE TABLE IF NOT EXISTS '" + database +"`.`people`" 
+			String createMyPersonTabe = "CREATE TABLE IF NOT EXISTS " + database + ".`people`"
 					+ "("
-						+ "`person_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,"
-						+ "`person_name` VARCHAR(50) NOT NULL,"
-						+ "`person_birth_date` VARCHAR(30)," 
-						+ "`person_death_date` VARCHAR(30),"
-						+ "`person_is_married` BOOL," 
-						+ "`person_has_children` BOOL," 
-						+ "`person_age` INT"
+					+ "`person_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,"
+					+ "`person_name` VARCHAR(50) NOT NULL,"
+					+ "`person_birth_date` VARCHAR(30),"
+					+ "`person_death_date` VARCHAR(30),"
+					+ "`person_is_married` BOOL,"
+					+ "`person_has_children` BOOL,"
+					+ "`person_age` INT"
 					+ ") ENGINE = INNODB;";
-	
+			
 			int result = createTableStatement.executeUpdate(createMyPersonTabe);
 			createTableStatement.close();
 		}
@@ -210,17 +252,17 @@ public class DatabaseController
 	}
 	
 	/**
-	 * A method to delete the database labeled 'graveyard'.should NOT be called.
-	 * Uses a try/catch to prevent crashing.
+	 * A method to delete the database specified. should NOT be called. Uses a
+	 * try/catch to prevent crashing.
 	 */
-	public void deleteDatabase()
+	public void deleteDatabase(String databaseName)
 	{
 		clearConnection();
 		try
 		{
 			Statement deleteDatabaseStatement = (databaseConnection).createStatement();
 			
-			int result = deleteDatabaseStatement.executeUpdate("DROP DATABASE graveyard;");
+			int result = deleteDatabaseStatement.executeUpdate("DROP DATABASE " + databaseName + ";");
 		}
 		catch (SQLException currentSQLError)
 		{
@@ -280,9 +322,14 @@ public class DatabaseController
 	}
 	
 	/**
-	 * Updated the people table to reflect a new name based on the supplied name. Pops a window with the number of changes reflected in the SQL statement.
-	 * @param oldName The old name to be changed.
-	 * @param newName The new name to be inserted.
+	 * Updated the people table to reflect a new name based on the supplied
+	 * name. Pops a window with the number of changes reflected in the SQL
+	 * statement.
+	 * 
+	 * @param oldName
+	 *            The old name to be changed.
+	 * @param newName
+	 *            The new name to be inserted.
 	 */
 	public void updatePersonInTable(String oldName, String newName)
 	{
@@ -291,10 +338,10 @@ public class DatabaseController
 			Statement updateStatement = databaseConnection.createStatement();
 			String updateString = "UPDATE `graveyard`.`people`"
 					+ "SET `person_name` = '" + newName + "'"
-					+"WHERE `person_name = '" + oldName + "' ;";
+					+ "WHERE `person_name = '" + oldName + "' ;";
 			
 			int result = updateStatement.executeUpdate(updateString);
-			JOptionPane.showMessageDialog(baseController.getMyAppFrame(), "successfully updated" + result + " row(s)");
+			JOptionPane.showMessageDialog(baseController.getMyAppFrame(), "successfully updated " + result + " row(s)");
 			updateStatement.close();
 		}
 		catch (SQLException currentSQLError)
@@ -302,4 +349,15 @@ public class DatabaseController
 			displaySQLErrors(currentSQLError);
 		}
 	}
+	
+	/**
+	 * Method that creates a connection with an external server.
+	 */
+	public void connectToExternalServer()
+	{
+		buildConnectionString("10.228.6.204", "", "ctec", "student");
+		setupConnection();
+		createDatabase("Kyler");
+	}
+	
 }

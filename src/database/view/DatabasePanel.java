@@ -29,6 +29,7 @@ public class DatabasePanel extends JPanel
 	private JButton createPeopleTableButton;
 	private JButton insertPersonButton;
 	private JButton updateButton;
+	private JButton externalServerButton;
 	private JLabel nameLabel;
 	private JLabel birthLabel;
 	private JLabel deathLabel;
@@ -54,6 +55,7 @@ public class DatabasePanel extends JPanel
 		createPeopleTableButton = new JButton("Create Table");
 		insertPersonButton = new JButton("insert Person");
 		updateButton = new JButton("Update Person");
+		externalServerButton = new JButton("Connect to External Server");
 		// ----------- JLabels ------------ \\
 		nameLabel = new JLabel("Name");
 		birthLabel = new JLabel("Birth Date");
@@ -70,11 +72,12 @@ public class DatabasePanel extends JPanel
 	private void setupPanel()
 	{
 		this.setLayout(baseLayout);
-		this.setBackground(Color.DARK_GRAY);
+		this.setBackground(Color.LIGHT_GRAY);
 		this.add(createDatabaseButton);
 		this.add(createPeopleTableButton);
 		this.add(insertPersonButton);
 		this.add(updateButton);
+		this.add(externalServerButton);
 		this.add(textArea);
 		this.add(nameLabel);
 		this.add(nameField);
@@ -96,8 +99,6 @@ public class DatabasePanel extends JPanel
 		baseLayout.putConstraint(SpringLayout.WEST, deathDateField, 10, SpringLayout.WEST, this);
 		baseLayout.putConstraint(SpringLayout.WEST, nameField, 10, SpringLayout.WEST, this);
 		baseLayout.putConstraint(SpringLayout.NORTH, birthDateField, 84, SpringLayout.NORTH, this);
-		baseLayout.putConstraint(SpringLayout.NORTH, textArea, 6, SpringLayout.SOUTH, deathDateField);
-		baseLayout.putConstraint(SpringLayout.WEST, textArea, 38, SpringLayout.EAST, ageField);
 		baseLayout.putConstraint(SpringLayout.WEST, ageField, 10, SpringLayout.WEST, this);
 		baseLayout.putConstraint(SpringLayout.NORTH, ageField, 29, SpringLayout.SOUTH, deathDateField);
 		baseLayout.putConstraint(SpringLayout.NORTH, createDatabaseButton, 0, SpringLayout.NORTH, deathDateField);
@@ -109,15 +110,19 @@ public class DatabasePanel extends JPanel
 		baseLayout.putConstraint(SpringLayout.SOUTH, deathLabel, -6, SpringLayout.NORTH, deathDateField);
 		baseLayout.putConstraint(SpringLayout.NORTH, ageLabel, 6, SpringLayout.SOUTH, deathDateField);
 		baseLayout.putConstraint(SpringLayout.WEST, ageLabel, 10, SpringLayout.WEST, this);
-		baseLayout.putConstraint(SpringLayout.EAST, nameField, 256, SpringLayout.WEST, this);
 		baseLayout.putConstraint(SpringLayout.NORTH, createPeopleTableButton, -1, SpringLayout.NORTH, ageField);
 		baseLayout.putConstraint(SpringLayout.WEST, createPeopleTableButton, 0, SpringLayout.WEST, createDatabaseButton);
 		baseLayout.putConstraint(SpringLayout.NORTH, insertPersonButton, 27, SpringLayout.SOUTH, createPeopleTableButton);
 		baseLayout.putConstraint(SpringLayout.WEST, insertPersonButton, 0, SpringLayout.WEST, createDatabaseButton);
 		baseLayout.putConstraint(SpringLayout.WEST, nameLabel, 10, SpringLayout.WEST, this);
-		baseLayout.putConstraint(SpringLayout.SOUTH, nameLabel, -6, SpringLayout.NORTH, nameField);
 		baseLayout.putConstraint(SpringLayout.NORTH, updateButton, 24, SpringLayout.SOUTH, insertPersonButton);
 		baseLayout.putConstraint(SpringLayout.WEST, updateButton, 0, SpringLayout.WEST, createDatabaseButton);
+		baseLayout.putConstraint(SpringLayout.NORTH, externalServerButton, -1, SpringLayout.NORTH, birthDateField);
+		baseLayout.putConstraint(SpringLayout.WEST, externalServerButton, 0, SpringLayout.WEST, createDatabaseButton);
+		baseLayout.putConstraint(SpringLayout.WEST, textArea, 23, SpringLayout.EAST, ageField);
+		baseLayout.putConstraint(SpringLayout.NORTH, textArea, -1, SpringLayout.NORTH, createPeopleTableButton);
+		baseLayout.putConstraint(SpringLayout.EAST, nameField, 7, SpringLayout.EAST, textArea);
+		baseLayout.putConstraint(SpringLayout.SOUTH, nameLabel, -6, SpringLayout.NORTH, nameField);
 
 	}
 	
@@ -127,7 +132,7 @@ public class DatabasePanel extends JPanel
 		{
 			public void actionPerformed(ActionEvent click)
 			{
-				baseController.getMyDataController().createDatabase();
+				baseController.getMyDataController().createDatabase("graveyard");
 			}
 		});
 		createPeopleTableButton.addActionListener(new ActionListener()
@@ -155,11 +160,19 @@ public class DatabasePanel extends JPanel
 	{
 			public void actionPerformed(ActionEvent click)
 			{
-//				baseController.getMyDataController().updatePersonInTable(getName(), );
+				baseController.getMyDataController().updatePersonInTable(nameField.getName(), deathDateField.getText());
 			}
 	
 			
 	});
+		
+		externalServerButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent click)
+			{
+				baseController.getMyDataController().connectToExternalServer();
+			}
+		});
 		
 	}
 	
