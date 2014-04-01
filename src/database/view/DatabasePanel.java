@@ -3,6 +3,7 @@ package database.view;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -20,12 +21,12 @@ public class DatabasePanel extends JPanel
 	// ------ Declaration Section ------ \\
 	private AppController baseController;
 	private SpringLayout baseLayout;
-	private JTextArea textArea;
+	private JTextArea resultsArea;
 	private JTextField nameField;
 	private JTextField birthDateField;
 	private JTextField deathDateField;
 	private JTextField ageField;
-	private JButton createDatabaseButton;
+	private JButton selectButton;
 	private JButton createPeopleTableButton;
 	private JButton insertPersonButton;
 	private JButton updateButton;
@@ -43,7 +44,7 @@ public class DatabasePanel extends JPanel
 		// --------- SpringLayout --------- \\
 		baseLayout = new SpringLayout();
 		// ----------- TextArea ----------- \\
-		textArea = new JTextArea(10, 20);
+		resultsArea = new JTextArea(9, 20);
 		
 		// ---------- TextFeilds ---------- \\
 		nameField = new JTextField(50);
@@ -51,9 +52,9 @@ public class DatabasePanel extends JPanel
 		deathDateField = new JTextField(30);
 		ageField = new JTextField(5);
 		// ----------- JButtons ----------- \\
-		createDatabaseButton = new JButton("Create Database");
+		selectButton = new JButton("Select from database");
 		createPeopleTableButton = new JButton("Create Table");
-		insertPersonButton = new JButton("insert Person");
+		insertPersonButton = new JButton("Insert Person");
 		updateButton = new JButton("Update Person");
 		externalServerButton = new JButton("Connect to External Server");
 		// ----------- JLabels ------------ \\
@@ -61,7 +62,6 @@ public class DatabasePanel extends JPanel
 		birthLabel = new JLabel("Birth Date");
 		deathLabel = new JLabel("Death Date");
 		ageLabel = new JLabel("Age");
-
 		
 		setupPanel();
 		setupLayout();
@@ -71,14 +71,16 @@ public class DatabasePanel extends JPanel
 	// ----------- Methods ------------ \\
 	private void setupPanel()
 	{
-		this.setLayout(baseLayout);
 		this.setBackground(Color.LIGHT_GRAY);
-		this.add(createDatabaseButton);
+		this.setLayout(baseLayout);
+		resultsArea.setWrapStyleWord(true);
+		resultsArea.setLineWrap(true);
+		this.add(selectButton);
 		this.add(createPeopleTableButton);
 		this.add(insertPersonButton);
 		this.add(updateButton);
 		this.add(externalServerButton);
-		this.add(textArea);
+		this.add(resultsArea);
 		this.add(nameLabel);
 		this.add(nameField);
 		this.add(birthLabel);
@@ -88,8 +90,8 @@ public class DatabasePanel extends JPanel
 		this.add(ageLabel);
 		this.add(ageField);
 		
-		textArea.setWrapStyleWord(true);
-		textArea.setLineWrap(true);
+		resultsArea.setWrapStyleWord(true);
+		resultsArea.setLineWrap(true);
 	}
 	
 	private void setupLayout()
@@ -101,8 +103,8 @@ public class DatabasePanel extends JPanel
 		baseLayout.putConstraint(SpringLayout.NORTH, birthDateField, 84, SpringLayout.NORTH, this);
 		baseLayout.putConstraint(SpringLayout.WEST, ageField, 10, SpringLayout.WEST, this);
 		baseLayout.putConstraint(SpringLayout.NORTH, ageField, 29, SpringLayout.SOUTH, deathDateField);
-		baseLayout.putConstraint(SpringLayout.NORTH, createDatabaseButton, 0, SpringLayout.NORTH, deathDateField);
-		baseLayout.putConstraint(SpringLayout.WEST, createDatabaseButton, 54, SpringLayout.EAST, deathDateField);
+		baseLayout.putConstraint(SpringLayout.NORTH, selectButton, 0, SpringLayout.NORTH, deathDateField);
+		baseLayout.putConstraint(SpringLayout.WEST, selectButton, 54, SpringLayout.EAST, deathDateField);
 		baseLayout.putConstraint(SpringLayout.SOUTH, nameField, -6, SpringLayout.NORTH, birthLabel);
 		baseLayout.putConstraint(SpringLayout.SOUTH, birthLabel, -2, SpringLayout.NORTH, birthDateField);
 		baseLayout.putConstraint(SpringLayout.WEST, birthLabel, 8, SpringLayout.WEST, this);
@@ -111,28 +113,50 @@ public class DatabasePanel extends JPanel
 		baseLayout.putConstraint(SpringLayout.NORTH, ageLabel, 6, SpringLayout.SOUTH, deathDateField);
 		baseLayout.putConstraint(SpringLayout.WEST, ageLabel, 10, SpringLayout.WEST, this);
 		baseLayout.putConstraint(SpringLayout.NORTH, createPeopleTableButton, -1, SpringLayout.NORTH, ageField);
-		baseLayout.putConstraint(SpringLayout.WEST, createPeopleTableButton, 0, SpringLayout.WEST, createDatabaseButton);
-		baseLayout.putConstraint(SpringLayout.NORTH, insertPersonButton, 27, SpringLayout.SOUTH, createPeopleTableButton);
-		baseLayout.putConstraint(SpringLayout.WEST, insertPersonButton, 0, SpringLayout.WEST, createDatabaseButton);
+		baseLayout.putConstraint(SpringLayout.WEST, createPeopleTableButton, 0, SpringLayout.WEST, selectButton);
+		baseLayout.putConstraint(SpringLayout.NORTH, insertPersonButton, 27, SpringLayout.SOUTH,
+				createPeopleTableButton);
+		baseLayout.putConstraint(SpringLayout.WEST, insertPersonButton, 0, SpringLayout.WEST, selectButton);
 		baseLayout.putConstraint(SpringLayout.WEST, nameLabel, 10, SpringLayout.WEST, this);
 		baseLayout.putConstraint(SpringLayout.NORTH, updateButton, 24, SpringLayout.SOUTH, insertPersonButton);
-		baseLayout.putConstraint(SpringLayout.WEST, updateButton, 0, SpringLayout.WEST, createDatabaseButton);
+		baseLayout.putConstraint(SpringLayout.WEST, updateButton, 0, SpringLayout.WEST, selectButton);
 		baseLayout.putConstraint(SpringLayout.NORTH, externalServerButton, -1, SpringLayout.NORTH, birthDateField);
-		baseLayout.putConstraint(SpringLayout.WEST, externalServerButton, 0, SpringLayout.WEST, createDatabaseButton);
-		baseLayout.putConstraint(SpringLayout.WEST, textArea, 23, SpringLayout.EAST, ageField);
-		baseLayout.putConstraint(SpringLayout.NORTH, textArea, -1, SpringLayout.NORTH, createPeopleTableButton);
-		baseLayout.putConstraint(SpringLayout.EAST, nameField, 7, SpringLayout.EAST, textArea);
+		baseLayout.putConstraint(SpringLayout.WEST, externalServerButton, 0, SpringLayout.WEST, selectButton);
+		baseLayout.putConstraint(SpringLayout.WEST, resultsArea, 23, SpringLayout.EAST, ageField);
+		baseLayout.putConstraint(SpringLayout.NORTH, resultsArea, -1, SpringLayout.NORTH, createPeopleTableButton);
+		baseLayout.putConstraint(SpringLayout.EAST, nameField, 7, SpringLayout.EAST, resultsArea);
 		baseLayout.putConstraint(SpringLayout.SOUTH, nameLabel, -6, SpringLayout.NORTH, nameField);
-
+		
+	}
+	
+	private void fillTextArea(Vector<Person> people)
+	{
+		resultsArea.setText("");
+		for (Person currentPerson : people)
+		{
+			resultsArea.append(currentPerson.toString() + "\n");
+		}
+	}
+	
+	private void clearFields()
+	{
+		nameField.setText("");
+		birthDateField.setText("");
+		deathDateField.setText("");
+		ageField.setText("");
+		resultsArea.setText("");
 	}
 	
 	private void setupListeners()
 	{
-		createDatabaseButton.addActionListener(new ActionListener()
+		selectButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent click)
 			{
-				baseController.getMyDataController().createDatabase("graveyard");
+				Vector<Person> currentPeople = baseController.getMyDataController().selectDataFromTable("people");
+				fillTextArea(currentPeople);
+				
+				// baseController.getMyDataController().createDatabase("graveyard");
 			}
 		});
 		createPeopleTableButton.addActionListener(new ActionListener()
@@ -140,6 +164,7 @@ public class DatabasePanel extends JPanel
 			public void actionPerformed(ActionEvent click)
 			{
 				baseController.getMyDataController().createPeopleTable("graveyard");
+				clearFields();
 			}
 		});
 		insertPersonButton.addActionListener(new ActionListener()
@@ -154,18 +179,17 @@ public class DatabasePanel extends JPanel
 				
 				baseController.getMyGravePeople().add(currentPerson);
 				baseController.getMyDataController().insertPersonIntoDatabase(currentPerson);
+				clearFields();
 			}
 		});
 		updateButton.addActionListener(new ActionListener()
-	{
+		{
 			public void actionPerformed(ActionEvent click)
 			{
 				baseController.getMyDataController().updatePersonInTable(nameField.getName(), deathDateField.getText());
 			}
-	
 			
-	});
-		
+		});
 		externalServerButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent click)
@@ -173,7 +197,6 @@ public class DatabasePanel extends JPanel
 				baseController.getMyDataController().connectToExternalServer();
 			}
 		});
-		
 	}
 	
 	private boolean checkInteger(String current)
@@ -206,7 +229,5 @@ public class DatabasePanel extends JPanel
 		
 		return deadPerson;
 	}
-	
-
 	
 }

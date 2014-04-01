@@ -2,8 +2,11 @@ package database.controller;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
@@ -66,13 +69,12 @@ public class DatabaseController
 		{
 			Class.forName("com.mysql.jdbc.Driver");
 		}
-		catch(Exception currentExeption)
+		catch (Exception currentExeption)
 		{
 			System.err.println("Unable to load driver.");
 			System.exit(1);
 		}
 	}
-	
 	
 	/**
 	 * Builds a Java connectionString for a MySQL database with the supplied
@@ -168,7 +170,7 @@ public class DatabaseController
 		{
 			Statement createDatabaseStatement = databaseConnection.createStatement();
 			
-			int result = createDatabaseStatement.executeUpdate("CREATE DATABASE " + databaseName + ";");
+			int result = createDatabaseStatement.executeUpdate("CREATE DATABASE IF NOT EXISTS " + databaseName + ";");
 		}
 		catch (SQLException currentSQLError)
 		{
@@ -297,7 +299,7 @@ public class DatabaseController
 			{
 				databaseHasChildren = 0;
 			}
-			String insertString = "INSERT INTO `graveyard`.`people` ( `person_name`,`death_date`,`birth_date`,`is_married`,`has_children`,`age`)"
+			String insertString = "INSERT INTO `graveyard`.`people` ( `person_name`,`person_death_date`,`person_birth_date`,`person_is_married`,`person_has_children`,`person_age`)"
 					+ "VALUES "
 					+ "('"
 					+ currentPerson.getName()
@@ -310,7 +312,7 @@ public class DatabaseController
 					+ "', '"
 					+ databaseHasChildren
 					+ "', '"
-					+ currentPerson.getAge() + ");";
+					+ currentPerson.getAge() + "' );";
 			
 			int result = insertPersonStatement.executeUpdate(insertString);
 			JOptionPane.showMessageDialog(null, "successfully inserted " + result + " rows.");
@@ -350,6 +352,47 @@ public class DatabaseController
 		}
 	}
 	
+	public Vector<Person> selectDataFromTable(String tableName)
+	{
+		Vector<Person> personVector = new Vector<Person>();
+		ResultSet seeDeadPeopleResults;
+		String selectQuery = "SELECT person_name, person_bith_date, person_death_date, person_age,"
+				+ " person_is_married, person_has_children FROM `" + tableName + "`;";
+		
+		try
+		{
+			PreparedStatement selectStatement = databaseConnection.prepareStatement(selectQuery);
+			seeDeadPeopleResults = selectStatement.executeQuery();
+			
+			while (seeDeadPeopleResults.next())
+			{
+				Person tempPerson = new Person();
+				String tempName = seeDeadPeopleResults.getString(1);
+				String tempBirth = seeDeadPeopleResults.getString(2);
+				String tempDeath = seeDeadPeopleResults.getString(3);
+				int tempAge = seeDeadPeopleResults.getInt(4);
+				boolean tempMarried = seeDeadPeopleResults.getBoolean(5);
+				boolean tempChildren = seeDeadPeopleResults.getBoolean(6);
+				
+				tempPerson.setName(tempName);
+				tempPerson.setBirthDate(tempBirth);
+				tempPerson.setDeathDate(tempDeath);
+				tempPerson.setAge(tempAge);
+				tempPerson.setMarried(tempMarried);
+				tempPerson.setChildren(tempChildren);
+				
+				personVector.add(tempPerson);
+			}
+			seeDeadPeopleResults.close();
+			selectStatement.close();
+		}
+		catch (SQLException currentSQLError)
+		{
+			displaySQLErrors(currentSQLError);
+		}
+		return personVector;
+	}
+	
 	/**
 	 * Method that creates a connection with an external server.
 	 */
@@ -357,7 +400,7 @@ public class DatabaseController
 	{
 		buildConnectionString("10.228.6.204", "", "ctec", "student");
 		setupConnection();
-		createDatabase("Kyler");
+//		createDatabase("Kyler");
 	}
 	
 }
