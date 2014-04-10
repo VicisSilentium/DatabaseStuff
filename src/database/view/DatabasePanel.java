@@ -29,8 +29,9 @@ public class DatabasePanel extends JPanel
 	private JButton selectButton;
 	private JButton createPeopleTableButton;
 	private JButton insertPersonButton;
-	private JButton updateButton;
+	private JButton updateNameButton;
 	private JButton externalServerButton;
+	private JButton	 updatePersonInfoButton;
 	private JLabel nameLabel;
 	private JLabel birthLabel;
 	private JLabel deathLabel;
@@ -55,7 +56,8 @@ public class DatabasePanel extends JPanel
 		selectButton = new JButton("Select from database");
 		createPeopleTableButton = new JButton("Create Table");
 		insertPersonButton = new JButton("Insert Person");
-		updateButton = new JButton("Update Person");
+		updateNameButton = new JButton("Update Person Name");
+		updatePersonInfoButton = new JButton("Update Person Info");
 		externalServerButton = new JButton("Connect to External Server");
 		// ----------- JLabels ------------ \\
 		nameLabel = new JLabel("Name");
@@ -78,7 +80,8 @@ public class DatabasePanel extends JPanel
 		this.add(selectButton);
 		this.add(createPeopleTableButton);
 		this.add(insertPersonButton);
-		this.add(updateButton);
+		this.add(updateNameButton);
+		this.add(updatePersonInfoButton);
 		this.add(externalServerButton);
 		this.add(resultsArea);
 		this.add(nameLabel);
@@ -103,30 +106,31 @@ public class DatabasePanel extends JPanel
 		baseLayout.putConstraint(SpringLayout.NORTH, birthDateField, 84, SpringLayout.NORTH, this);
 		baseLayout.putConstraint(SpringLayout.WEST, ageField, 10, SpringLayout.WEST, this);
 		baseLayout.putConstraint(SpringLayout.NORTH, ageField, 29, SpringLayout.SOUTH, deathDateField);
-		baseLayout.putConstraint(SpringLayout.NORTH, selectButton, 0, SpringLayout.NORTH, deathDateField);
-		baseLayout.putConstraint(SpringLayout.WEST, selectButton, 54, SpringLayout.EAST, deathDateField);
 		baseLayout.putConstraint(SpringLayout.SOUTH, nameField, -6, SpringLayout.NORTH, birthLabel);
 		baseLayout.putConstraint(SpringLayout.SOUTH, birthLabel, -2, SpringLayout.NORTH, birthDateField);
 		baseLayout.putConstraint(SpringLayout.WEST, birthLabel, 8, SpringLayout.WEST, this);
 		baseLayout.putConstraint(SpringLayout.WEST, deathLabel, 10, SpringLayout.WEST, this);
 		baseLayout.putConstraint(SpringLayout.SOUTH, deathLabel, -6, SpringLayout.NORTH, deathDateField);
-		baseLayout.putConstraint(SpringLayout.NORTH, ageLabel, 6, SpringLayout.SOUTH, deathDateField);
-		baseLayout.putConstraint(SpringLayout.WEST, ageLabel, 10, SpringLayout.WEST, this);
-		baseLayout.putConstraint(SpringLayout.NORTH, createPeopleTableButton, -1, SpringLayout.NORTH, ageField);
-		baseLayout.putConstraint(SpringLayout.WEST, createPeopleTableButton, 0, SpringLayout.WEST, selectButton);
-		baseLayout.putConstraint(SpringLayout.NORTH, insertPersonButton, 27, SpringLayout.SOUTH,
-				createPeopleTableButton);
-		baseLayout.putConstraint(SpringLayout.WEST, insertPersonButton, 0, SpringLayout.WEST, selectButton);
 		baseLayout.putConstraint(SpringLayout.WEST, nameLabel, 10, SpringLayout.WEST, this);
-		baseLayout.putConstraint(SpringLayout.NORTH, updateButton, 24, SpringLayout.SOUTH, insertPersonButton);
-		baseLayout.putConstraint(SpringLayout.WEST, updateButton, 0, SpringLayout.WEST, selectButton);
-		baseLayout.putConstraint(SpringLayout.NORTH, externalServerButton, -1, SpringLayout.NORTH, birthDateField);
-		baseLayout.putConstraint(SpringLayout.WEST, externalServerButton, 0, SpringLayout.WEST, selectButton);
 		baseLayout.putConstraint(SpringLayout.WEST, resultsArea, 23, SpringLayout.EAST, ageField);
-		baseLayout.putConstraint(SpringLayout.NORTH, resultsArea, -1, SpringLayout.NORTH, createPeopleTableButton);
 		baseLayout.putConstraint(SpringLayout.EAST, nameField, 7, SpringLayout.EAST, resultsArea);
 		baseLayout.putConstraint(SpringLayout.SOUTH, nameLabel, -6, SpringLayout.NORTH, nameField);
-		
+		baseLayout.putConstraint(SpringLayout.NORTH, resultsArea, 27, SpringLayout.SOUTH, deathDateField);
+		baseLayout.putConstraint(SpringLayout.WEST, selectButton, 56, SpringLayout.EAST, birthDateField);
+		baseLayout.putConstraint(SpringLayout.NORTH, createPeopleTableButton, 14, SpringLayout.SOUTH, selectButton);
+		baseLayout.putConstraint(SpringLayout.WEST, createPeopleTableButton, 0, SpringLayout.WEST, selectButton);
+		baseLayout.putConstraint(SpringLayout.NORTH, insertPersonButton, 1, SpringLayout.NORTH, resultsArea);
+		baseLayout.putConstraint(SpringLayout.WEST, insertPersonButton, 0, SpringLayout.WEST, selectButton);
+		baseLayout.putConstraint(SpringLayout.NORTH, updateNameButton, 13, SpringLayout.SOUTH, insertPersonButton);
+		baseLayout.putConstraint(SpringLayout.WEST, updateNameButton, 0, SpringLayout.WEST, selectButton);
+		baseLayout.putConstraint(SpringLayout.NORTH, updatePersonInfoButton, 14, SpringLayout.SOUTH, updateNameButton);
+		baseLayout.putConstraint(SpringLayout.WEST, updatePersonInfoButton, 0, SpringLayout.WEST, selectButton);
+		baseLayout.putConstraint(SpringLayout.NORTH, externalServerButton, -4, SpringLayout.NORTH, birthLabel);
+		baseLayout.putConstraint(SpringLayout.WEST, externalServerButton, 54, SpringLayout.EAST, birthDateField);
+		baseLayout.putConstraint(SpringLayout.NORTH, selectButton, -4, SpringLayout.NORTH, deathLabel);
+		baseLayout.putConstraint(SpringLayout.NORTH, ageLabel, 6, SpringLayout.SOUTH, deathDateField);
+		baseLayout.putConstraint(SpringLayout.WEST, ageLabel, 0, SpringLayout.WEST, nameLabel);
+
 	}
 	
 	private void fillTextArea(Vector<Person> people)
@@ -182,11 +186,19 @@ public class DatabasePanel extends JPanel
 				clearFields();
 			}
 		});
-		updateButton.addActionListener(new ActionListener()
+		updateNameButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent click)
 			{
-				baseController.getMyDataController().updatePersonInTable(nameField.getName(), deathDateField.getText());
+				baseController.getMyDataController().updatePersonNameInTable(nameField.getName(), deathDateField.getText());
+			}
+			
+		});
+		updatePersonInfoButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent click)
+			{
+				baseController.getMyDataController().updatePersonInfoInTable(nameField.getName(), birthDateField.getText(), deathDateField.getText(), ageField.getText());
 			}
 			
 		});

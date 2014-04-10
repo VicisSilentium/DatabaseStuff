@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
@@ -157,11 +158,12 @@ public class DatabaseController
 		setupConnection();
 	}
 	
-	/*
+	/**
 	 * A method to create a specified database. Uses a try/catch to prevent
 	 * crashing.
 	 * 
-	 * @param databaseName The name for the database to connect to.
+	 * @param databaseName
+	 *            The name for the database to connect to.
 	 */
 	public void createDatabase(String databaseName)
 	{
@@ -179,7 +181,33 @@ public class DatabaseController
 	}
 	
 	/**
-	 * A method to create the tables in the database.
+	 * Helper method to parse a 2D array of String to a single string for importing into a SQL CREATE TABLE statement.
+	 * @param Parameters a nX3 array of String with the following format[0] field name , [1] field type, [2] field information. the third field, [2] may be left blank as needed by the data type in SQL database.
+	 * 
+	 * @return The array parsed out with separationns of each parameter by commas as a String/
+	 */
+	private String parsePerameterArray(String[][] parameters)
+	{
+		String parameterInfo = "";
+		
+		for(int row = 0; row < parameters.length; row++)
+		{
+			for(int col = 0; col < parameters[0].length;col++)
+			{
+			parameterInfo += "`" + parameters[0] + "` " + parameters[1] + " " + parameters [2];	
+			}
+			if(row < parameters.length - 1)
+			{
+				parameterInfo += ",";
+			}
+		}
+		
+		return parameterInfo;
+	}
+	
+	/**
+	 * A method to create a new table in the database specified.
+	 * If there is a problem it will call the displaySQLErrors method.
 	 * 
 	 * @param database
 	 *            - the database the data is being added to.
@@ -213,9 +241,33 @@ public class DatabaseController
 	}
 	
 	/**
+	 * Creates a table on a specified database with the supply
+	 * @param database The database to add the table to.
+	 * @param tableName The name of the new table.
+	 * @param parameters a nX3 2D array of String with the following Structure: [0] field_name, [1] field type, field information(if needed)
+	 */
+	public void createTable(String database, String tableName, String [][] parameters)
+	{
+
+		try
+		{
+			Statement createTableStatement = databaseConnection.createStatement();
+			String parameterInfo = parsePerameterArray(parameters);
+			
+			String createString = "CREATE TABLE IF NOT EXISTS `" + database + "`.`" + tableName + "`" + "(" + parameterInfo + ") ENGINE + INNODB;";
+			createTableStatement.close();
+		}
+		catch (SQLException currentSQLError)
+		{
+			displaySQLErrors(currentSQLError);
+		}
+		
+	}
+	
+	/**
 	 * Creates a person table on the supplied database. Only creates the table
 	 * if it does not exist. Defines table structure to have an ID, name, birth,
-	 * death, children, marital status, and age. If there is a problem it will
+	 * death, children, martial status, and age. If there is a problem it will
 	 * call the displaySQLErrors method.
 	 * 
 	 * @param database
@@ -256,6 +308,39 @@ public class DatabaseController
 	/**
 	 * A method to delete the database specified. should NOT be called. Uses a
 	 * try/catch to prevent crashing.
+	 */
+	
+	public Vector<String> getTableHeaders(String database, String table)
+	{
+		Vector<String> tableHeaders = new Vector<String>();
+		String query = "SELECT * from `" + database + "`,`" + table + "`;";
+		try
+		{
+			Statement headerStatement = databaseConnection.createStatement();
+			ResultSet results = headerStatement.executeQuery(query);
+			ResultSetMetaData resultsData = results.getMetaData();
+			
+			for (int column = 1; column <= resultsData.getColumnCount(); column++)
+			{
+				tableHeaders.add(resultsData.getColumnName(column));
+			}
+			
+			results.close();
+			headerStatement.close();
+		}
+		catch (SQLException currentSQLError)
+		{
+			displaySQLErrors(currentSQLError);
+		}
+		
+		return tableHeaders;
+	}
+	
+	/**
+	 * A method to delete a database; should NOT be in use.
+	 * 
+	 * @param databaseName
+	 *            The name of the database to be deleted.
 	 */
 	public void deleteDatabase(String databaseName)
 	{
@@ -324,7 +409,7 @@ public class DatabaseController
 	}
 	
 	/**
-	 * Updated the people table to reflect a new name based on the supplied
+	 * Updates the people table to reflect a new name based on the supplied
 	 * name. Pops a window with the number of changes reflected in the SQL
 	 * statement.
 	 * 
@@ -333,7 +418,7 @@ public class DatabaseController
 	 * @param newName
 	 *            The new name to be inserted.
 	 */
-	public void updatePersonInTable(String oldName, String newName)
+	public void updatePersonNameInTable(String oldName, String newName)
 	{
 		try
 		{
@@ -352,11 +437,51 @@ public class DatabaseController
 		}
 	}
 	
+	/**
+	 * Updates the person selected from the people table to reflect new data.
+	 * 
+	 * @param Name
+	 *            Name of the person whose data will be changed.
+	 * @param birthDate
+	 *            The birth date of the selected person.
+	 * @param deathDate
+	 *            The death date of the selected person.
+	 * @param age
+	 *            The age of the selected person.
+	 */
+	public void updatePersonInfoInTable(String Name, String birthDate, String deathDate, String age)
+	{
+		try
+		{
+			Statement updateStatement = databaseConnection.createStatement();
+			String updateString = "UPDATE `graveyard`.`people`"
+					+ "SET `person_birth_date` = '" + birthDate + "'"
+					+ "SET `person_death_date` = '" + deathDate + "'"
+					+ "SET `person_age` = '" + age + "'"
+					+ "WHERE `person_name = '" + Name + "' ;";
+			
+			int result = updateStatement.executeUpdate(updateString);
+			JOptionPane.showMessageDialog(baseController.getMyAppFrame(), "successfully updated " + result + " row(s)");
+			updateStatement.close();
+		}
+		catch (SQLException currentSQLError)
+		{
+			displaySQLErrors(currentSQLError);
+		}
+	}
+	
+	/**
+	 * A method to select data from the specified table.
+	 * 
+	 * @param tableName
+	 *            The name of the table selected.
+	 * @return
+	 */
 	public Vector<Person> selectDataFromTable(String tableName)
 	{
 		Vector<Person> personVector = new Vector<Person>();
 		ResultSet seeDeadPeopleResults;
-		String selectQuery = "SELECT person_name, person_bith_date, person_death_date, person_age,"
+		String selectQuery = "SELECT person_name, person_birth_date, person_death_date, person_age,"
 				+ " person_is_married, person_has_children FROM `" + tableName + "`;";
 		
 		try
@@ -400,7 +525,7 @@ public class DatabaseController
 	{
 		buildConnectionString("10.228.6.204", "", "ctec", "student");
 		setupConnection();
-//		createDatabase("Kyler");
+		// createDatabase("Kyler");
 	}
 	
 }
